@@ -1,0 +1,10 @@
+node_modules/
+data/
+.env
+
+# local runtime artefacts
+.server.pid
+.server*.log
+*.db
+*.db-wal
+*.db-shm
