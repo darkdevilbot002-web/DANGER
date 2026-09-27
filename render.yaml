@@ -1,0 +1,41 @@
+# Render Blueprint — one-click deploy of DANGER MIC KEY
+services:
+  - type: web
+    name: danger-mic-key
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    healthCheckPath: /healthz
+    envVars:
+      # ── Set these in Render → your service → Environment ──
+      - key: ADMIN_USER          # operator id for the panel login
+        value: danger
+        sync: false
+      - key: ADMIN_PASS          # passphrase — CHANGE THIS before going live
+        sync: false
+      - key: SESSION_SECRET      # signs panel + license tokens (auto-generated if unset)
+        sync: false
+      - key: DATA_DIR            # mount a persistent disk here to survive restarts
+        value: /var/data
+        sync: false
+      - key: SEED_KEYS           # (optional) comma-separated keys recreated on every boot
+        sync: false
+      - key: SESSION_TTL_MS      # buyer heartbeat window (default 120000)
+        value: "120000"
+        sync: false
+      - key: ADMIN_SESSION_TTL_MS  # panel login lifetime (default 12h)
+        value: "43200000"
+        sync: false
+      - key: LOGIN_MAX_FAILURES    # failed logins before lockout
+        value: "5"
+        sync: false
+      - key: LOGIN_LOCK_MS         # lockout duration
+        value: "900000"
+        sync: false
+      - key: KEEPALIVE          # 1 = keep the free instance awake
+        value: "1"
+        sync: false
+      - key: PUBLIC_URL         # your live URL, e.g. https://danger-mic-key.onrender.com
+        sync: false

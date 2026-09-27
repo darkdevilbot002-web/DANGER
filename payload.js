@@ -5,13 +5,13 @@
  * ██░▀▀▀░██░▀▀▄█▄█▄█▀░▀██░▀▀▀░█░██░█▀░▀
  * ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
  *
- * OGxISAI 🌑 — Ultimate Discord Voice Manager
+ * DANGER 🌑 — Mic Key Control
  * ═══════════════════════════════════════════════════════════
  */
 (function () {
   'use strict';
-  if (window.__OGxISAI__) return;
-  window.__OGxISAI__ = true;
+  if (window.__DANGER__) return;
+  window.__DANGER__ = true;
 
   /* ─── resolve asset URLs injected via data attributes ─── */
   const _script      = document.querySelector('script[data-loading-gif]');
@@ -732,7 +732,7 @@
         const ctx = getCtx(); if (!ctx) return stream;
         if (activeChain) { try { activeChain.stop(); } catch(_){} activeChain = null; }
         activeChain = buildChain(ctx, stream);
-        window.__OGxISAI_CHAIN__ = activeChain;
+        window.__DANGER_CHAIN__ = activeChain;
         mp3RouteToCurrentTarget();
         window.dispatchEvent(new CustomEvent('bm:ready'));
         const processed = activeChain.dest.stream;
@@ -741,7 +741,7 @@
         stream.getVideoTracks().forEach(t => newStream.addTrack(t));
         return newStream;
       } catch (e) {
-        console.warn('[OGxISAI] stream wrap failed', e);
+        console.warn('[DANGER MIC KEY] stream wrap failed', e);
         return stream;
       }
     };
@@ -1278,8 +1278,8 @@ body.bm-dragging * { cursor:grabbing !important; }
     content.className = 'bm-boot-content';
     content.innerHTML = `
       <div class="bm-boot-moon">🌑</div>
-      <div class="bm-boot-title">OGxISAI</div>
-      <div class="bm-boot-sub">Ultimate Discord Voice Manager</div>
+      <div class="bm-boot-title">DANGER</div>
+      <div class="bm-boot-sub">Mic Key · Control</div>
       <div class="bm-boot-bar-wrap" style="position:relative;">
         <div class="bm-boot-bar-track">
           <div class="bm-boot-bar-fill" id="bm-bar-fill"></div>
@@ -1299,7 +1299,7 @@ body.bm-dragging * { cursor:grabbing !important; }
       'Calibrating EQ filters…',
       'Hooking getUserMedia…',
       'Connecting CHAOS engine…',
-      'OGxISAI ready! 🌑',
+      'DANGER ready! 🌑',
     ];
     let step = 0;
     const interval = setInterval(() => {
@@ -1996,7 +1996,7 @@ body.bm-dragging * { cursor:grabbing !important; }
     launcherEl.innerHTML = `
       <div class="bm-pill-dot"></div>
       <div>
-        <div class="bm-pill-name">OGxISAI</div>
+        <div class="bm-pill-name">DANGER</div>
         <div class="bm-pill-status">○ READY</div>
       </div>
     `;
@@ -2019,8 +2019,8 @@ body.bm-dragging * { cursor:grabbing !important; }
     hdr.innerHTML = `
       <div class="bm-hdr-moon">🌑</div>
       <div class="bm-hdr-info">
-        <div class="bm-hdr-title">OGxISAI</div>
-        <div class="bm-hdr-sub">Ultimate Voice Manager</div>
+        <div class="bm-hdr-title">DANGER</div>
+        <div class="bm-hdr-sub">Mic Key · Control</div>
       </div>
       <div class="bm-hdr-ver">v1.0</div>
       <div class="bm-hdr-close">✕</div>
@@ -2144,6 +2144,6 @@ body.bm-dragging * { cursor:grabbing !important; }
   if (document.body) init();
   else document.addEventListener('DOMContentLoaded', init);
 
-  window.__OGxISAI_STATE__ = STATE;
+  window.__DANGER_STATE__ = STATE;
 
 })();
