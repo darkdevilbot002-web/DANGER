@@ -23,6 +23,7 @@
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></symbol>
   <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9m-3 0v3m-2-3v2"/></symbol>
   <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
@@ -194,7 +195,8 @@
           <button class="chip" data-f="active"   aria-selected="false">Active <b id="nActive">0</b></button>
           <button class="chip" data-f="expired"  aria-selected="false">Expired <b id="nExpired">0</b></button>
           <button class="chip" data-f="revoked"  aria-selected="false">Revoked <b id="nRevoked">0</b></button>
-          <button class="chip" data-f="unbound"  aria-selected="false">Unbound</button>
+          <button class="chip chip-bind" data-f="bound"   aria-selected="false">Bound <b id="nBoundC">0</b></button>
+          <button class="chip chip-bind" data-f="unbound" aria-selected="false">Unbound <b id="nUnboundC">0</b></button>
         </div>
 
         <div class="spacer"></div>

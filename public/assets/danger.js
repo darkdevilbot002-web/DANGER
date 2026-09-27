@@ -327,10 +327,13 @@ function renderAll() { renderCounts(); renderKeys(); renderBulkBar(); }
 
 function renderCounts() {
   const all = state.keys;
+  const nBound = all.filter((k) => !!k.deviceId).length;
   $('#nAll').textContent     = all.length;
   $('#nActive').textContent  = all.filter((k) => k.status === 'active').length;
   $('#nExpired').textContent = all.filter((k) => k.status === 'expired').length;
   $('#nRevoked').textContent = all.filter((k) => k.status === 'revoked').length;
+  $('#nBoundC').textContent  = nBound;
+  $('#nUnboundC').textContent = all.length - nBound;
 }
 
 function visibleKeys() {
@@ -338,6 +341,7 @@ function visibleKeys() {
   const plan = state.plan;
   const list = state.keys.filter((k) => {
     if (state.filter === 'unbound') { if (k.deviceId) return false; }
+    else if (state.filter === 'bound') { if (!k.deviceId) return false; }
     else if (state.filter !== 'all' && k.status !== state.filter) return false;
     if (plan && k.plan !== plan) return false;
     if (!q) return true;
@@ -388,8 +392,10 @@ function renderKeys() {
     const st = k.status;
     const bound = !!k.deviceId;
     const dev = bound
-      ? '<span class="dv" title="' + esc(k.deviceId) + '"><svg class="i"><use href="#i-chip"></use></svg>' + esc(shortDev(k.deviceId)) + '</span>'
-      : '<span class="bdg b-unbound">Free</span>';
+      ? '<span class="dev dev-on" title="Bound to ' + esc(k.deviceId) + '">' +
+          '<svg class="i"><use href="#i-lock"></use></svg><span class="dev-id">' + esc(shortDev(k.deviceId)) + '</span></span>'
+      : '<span class="dev dev-off" title="Not bound to any device — this key can activate anywhere">' +
+          '<svg class="i"><use href="#i-unlock"></use></svg>Unbound</span>';
     const exp = k.expiresAt
       ? '<span title="' + esc(relTime(k.expiresAt)) + '">' + esc(new Date(k.expiresAt).toLocaleDateString()) + '</span>' +
         '<span class="sub">' + (st === 'expired' ? 'expired' : 'in ' + k.daysLeft + 'd') + '</span>'
@@ -526,8 +532,11 @@ function kwBodyHtml(k, history) {
           ? esc(new Date(k.expiresAt).toLocaleString()) + ' <span class="muted">(' + k.daysLeft + 'd left)</span>'
           : '<span class="muted">Never — lifetime</span>') + '</dd>' +
       '<dt>Device</dt><dd>' + (k.deviceId
-          ? '<span class="mono">' + esc(k.deviceId) + '</span>'
-          : '<span class="bdg b-unbound">Unbound</span>') + '</dd>' +
+          ? '<span class="dev dev-on" title="' + esc(k.deviceId) + '"><svg class="i"><use href="#i-lock"></use></svg>' +
+            '<span class="dev-id">' + esc(shortDev(k.deviceId)) + '</span></span>' +
+            '<div class="kv-full mono">' + esc(k.deviceId) + '</div>'
+          : '<span class="dev dev-off"><svg class="i"><use href="#i-unlock"></use></svg>Unbound</span>' +
+            '<div class="kv-note">Not tied to any device — it can activate on the first machine that uses it.</div>') + '</dd>' +
       '<dt>Buyer</dt><dd>' + esc(k.note || '—') + '</dd>' +
       '<dt>Email</dt><dd>' + esc(k.email || '—') + '</dd>' +
       '<dt>Checks</dt><dd>' + (k.verifications || 0) +
@@ -726,6 +735,8 @@ const COMMANDS = [
   { id: 'active',   label: 'Show active keys',           icon: 'i-checkc',  kbd: '',  run: () => setFilter('active') },
   { id: 'expired',  label: 'Show expired keys',          icon: 'i-clock',   kbd: '',  run: () => setFilter('expired') },
   { id: 'revoked',  label: 'Show revoked keys',          icon: 'i-ban',     kbd: '',  run: () => setFilter('revoked') },
+  { id: 'bound',    label: 'Show bound devices',         icon: 'i-lock',    kbd: '',  run: () => setFilter('bound') },
+  { id: 'unbound',  label: 'Show unbound keys',          icon: 'i-unlock',  kbd: '',  run: () => setFilter('unbound') },
   { id: 'all',      label: 'Show all keys',              icon: 'i-key',     kbd: '',  run: () => setFilter('all') },
   { id: 'export',   label: 'Export filtered keys (CSV)', icon: 'i-download',kbd: '',  run: () => $('#exportBtn').click() },
   { id: 'theme',    label: 'Toggle light / dark theme',  icon: 'i-moon',    kbd: '',  run: () => $('#themeBtn').click() },
