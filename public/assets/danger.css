@@ -408,6 +408,10 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand);cursor:poi
 .kw-edit .full{grid-column:1/-1}
 .kv-full{margin-top:6px;font-size:11px;color:var(--dm);word-break:break-all}
 .kv-note{margin-top:6px;font-size:11.5px;color:var(--dm);line-height:1.6}
+/* inline extend control in the drawer footer (replaces a native prompt()) */
+.kw-foot{flex-wrap:wrap;align-items:center}
+.ext-label{font-size:10.5px;font-weight:800;color:var(--dm);letter-spacing:1px;text-transform:uppercase}
+.ext-inp{width:78px;padding:9px 10px;font-family:var(--mono);font-size:13px;text-align:center}
 
 /* ══════════ COMMAND PALETTE ══════════ */
 .ovl-cmd{align-items:flex-start;padding-top:12vh}
@@ -417,6 +421,7 @@ input[type=checkbox]{width:15px;height:15px;accent-color:var(--brand);cursor:poi
 .cmd-input .i{font-size:17px;color:var(--brand)}
 .cmd-input input{flex:1;background:transparent;border:0;outline:none;color:var(--tx);font:inherit;font-size:15px}
 .cmd-input input::placeholder{color:var(--dm)}
+.cmd-input .mx{margin-left:0;flex:none}
 .cmd-input kbd{padding:2px 7px;border-radius:6px;background:var(--raise);border:1px solid var(--line);
   color:var(--dm);font-family:var(--mono);font-size:10.5px}
 .cmd-list{list-style:none;margin:0;padding:6px;max-height:340px;overflow-y:auto}

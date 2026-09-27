@@ -331,6 +331,7 @@
     <div class="mhead">
       <div class="mi mi-warn" id="cfIcon"><svg class="i"><use href="#i-alert"></use></svg></div>
       <div><h3 id="cfTitle">Are you sure?</h3><p id="cfSub">This cannot be undone</p></div>
+      <button class="mx" data-close="cfOvl" aria-label="Close"><svg class="i"><use href="#i-x"></use></svg></button>
     </div>
     <div class="mbody"><p id="cfBody" class="cf-body"></p></div>
     <div class="mfoot">
@@ -352,10 +353,14 @@
       <button class="mx" data-close="kwOvl" aria-label="Close"><svg class="i"><use href="#i-x"></use></svg></button>
     </div>
     <div class="mbody" id="kwBody"></div>
-    <div class="mfoot" id="kwFoot">
+    <div class="mfoot kw-foot" id="kwFoot">
       <button class="btn btn-ghost" type="button" data-close="kwOvl">Close</button>
+      <div class="spacer"></div>
+      <label class="ext-label" for="kwExtDays">+ days</label>
+      <input class="inp ext-inp" id="kwExtDays" type="number" min="0" step="1" value="30"
+             title="Days to add. 0 makes the key lifetime.">
       <button class="btn btn-warn" type="button" id="kwExtend">
-        <svg class="i"><use href="#i-clockplus"></use></svg>Extend 30 days</button>
+        <svg class="i"><use href="#i-clockplus"></use></svg>Extend</button>
     </div>
   </div>
 </div>
@@ -399,7 +404,7 @@
     <div class="cmd-input">
       <svg class="i"><use href="#i-cmd"></use></svg>
       <input id="cmdInput" type="text" placeholder="Type a command…" autocomplete="off" spellcheck="false">
-      <kbd>ESC</kbd>
+      <button class="mx" data-close="cmdOvl" aria-label="Close"><svg class="i"><use href="#i-x"></use></svg></button>
     </div>
     <ul class="cmd-list" id="cmdList"></ul>
   </div>

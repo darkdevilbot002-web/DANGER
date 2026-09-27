@@ -44,20 +44,27 @@ function openModal(id) {
 }
 function closeModal(id) {
   const m = $('#' + id);
-  if (m) m.classList.remove('hidden');
+  /* ADD 'hidden' to close (this was inverted, which made "Close" re-open the modal). */
+  if (m) m.classList.add('hidden');
   if (!$$('.ovl:not(.hidden),.drawer:not(.hidden)').length) document.body.style.overflow = '';
-  if (_lastFocus && _lastFocus.focus) _lastFocus.focus();
+  if (_lastFocus && _lastFocus.focus && document.contains(_lastFocus)) _lastFocus.focus();
 }
 $$('.ovl').forEach((o) => o.addEventListener('mousedown', (e) => { if (e.target === o) closeModal(o.id); }));
-$$('[data-close]').forEach((b) => b.addEventListener('click', () => closeModal(b.dataset.close)));
+/* Delegated so that buttons injected after load (e.g. the mint result's
+   "Close" / "Mint another") stay wired up. */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-close]');
+  if (b) closeModal(b.dataset.close);
+});
 
-/* Promise-based confirm (replaces window.confirm) */
+/* Promise-based confirm (replaces window.confirm).
+   `body` is trusted HTML built by us — callers escape every interpolated
+   value with esc() first, so buyer notes can never inject markup. */
 let _cfResolve = null;
 function confirmDlg({ title, sub, body, yes, danger = true }) {
   $('#cfTitle').textContent = title || 'Are you sure?';
   $('#cfSub').textContent  = sub  || 'This cannot be undone';
-  /* The key is escaped before being injected so buyer notes can never inject HTML. */
-  $('#cfBody').innerHTML   = esc(body || '');
+  $('#cfBody').innerHTML   = body || '';
   const y = $('#cfYes');
   y.textContent = yes || 'Confirm';
   y.className = 'btn ' + (danger ? 'btn-danger' : 'btn-warn');
@@ -593,15 +600,19 @@ async function openDetail(key) {
 
 $('#kwExtend').addEventListener('click', async () => {
   if (!KW_KEY) return;
-  const days = prompt('Extend by how many days? (0 = make lifetime)', '30');
-  if (days === null) return;
-  const n = parseInt(days, 10) || 0;
+  const n = Math.max(0, parseInt($('#kwExtDays').value, 10) || 0);
+  const btn = $('#kwExtend');
+  btn.disabled = true;
   try {
     await api('/api/keys/' + encodeURIComponent(KW_KEY) + '/extend', { body: { days: n, fromNow: true } });
     toast('ok', 'Expiry updated', n === 0 ? KW_KEY + ' is now lifetime' : KW_KEY + ' +' + n + 'd');
     await Promise.all([loadKeys(true), loadStats(), loadFeed()]);
     openDetail(KW_KEY);
-  } catch (e) { toast('err', 'Extend failed', e.message); }
+  } catch (e) {
+    toast('err', 'Extend failed', e.message);
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 /* ─── Mint a key ──────────────────────────────────────────────────── */
@@ -609,24 +620,29 @@ $('#kwExtend').addEventListener('click', async () => {
 const MK_HTML = $('#mkForm').innerHTML;
 const MK_FOOT = $('#mkFoot').innerHTML;
 
-function bindCreateForm() {
-  $$('.preset', $('#mkOvl')).forEach((p) => p.addEventListener('click', () => {
-    $('#days').value = p.dataset.d;
+/* Delegated once, at boot: presets + the Mint button live inside #mkForm /
+   #mkFoot, whose innerHTML is swapped every time the modal is reset. Binding
+   per-open stacked duplicate listeners on the same nodes. */
+$('#mkOvl').addEventListener('click', (e) => {
+  const preset = e.target.closest('.preset');
+  if (preset) {
+    $('#days').value = preset.dataset.d;
     $$('.preset', $('#mkOvl')).forEach((o) => o.setAttribute('aria-selected', 'false'));
-    p.setAttribute('aria-selected', 'true');
-  }));
-  $('#days').addEventListener('input', () => {
-    $$('.preset', $('#mkOvl')).forEach((o) =>
-      o.setAttribute('aria-selected', String(o.dataset.d === $('#days').value)));
-  });
-  $('#mkGo').addEventListener('click', mintKey);
-}
+    preset.setAttribute('aria-selected', 'true');
+    return;
+  }
+  if (e.target.closest('#mkGo')) mintKey();
+});
+$('#days').addEventListener('input', () => {
+  $$('.preset', $('#mkOvl')).forEach((o) =>
+    o.setAttribute('aria-selected', String(o.dataset.d === $('#days').value)));
+});
+
 function openCreate() {
   $('#mkForm').innerHTML = MK_HTML;
   $('#mkFoot').innerHTML = MK_FOOT;
-  $('#makeMsg').className = 'msg';
-  $('#makeMsg').textContent = '';
-  bindCreateForm();
+  const m = $('#makeMsg');
+  if (m) { m.className = 'msg'; m.textContent = ''; }
   openModal('mkOvl');
 }
 
@@ -648,13 +664,17 @@ async function mintKey() {
     const r = await api('/api/keys', { body });
     const keys = r.count ? r.keys : [r.key];
     const rec = r.record || r.records[0];
-    const valid = days === '' || days === 0;
+    /* Trust the SERVER's record, not the form: leaving "days" blank falls back to
+       the plan default (e.g. pro = 30 days), so the old check wrongly said "lifetime". */
+    const isLifetime = !rec.expiresAt;
+    const daysOut = isLifetime ? null : Math.max(0, Math.round((rec.expiresAt - Date.now()) / 864e5));
     $('#mkForm').innerHTML =
       '<div class="result">' +
         '<small>Send ' + (keys.length > 1 ? 'these keys' : 'this key') + ' to the buyer — click to copy</small>' +
         '<code class="kk" data-copy="' + esc(keys[0]) + '">' + esc(keys[0]) + '</code>' +
-        '<small>' + (valid ? 'Lifetime access · never expires'
-                           : 'Valid for ' + days + ' days · expires ' + new Date(rec.expiresAt).toLocaleDateString()) +
+        '<small>' + (isLifetime
+            ? 'Lifetime access · never expires'
+            : 'Valid for ' + daysOut + ' days · expires ' + new Date(rec.expiresAt).toLocaleDateString()) +
         (keys.length > 1 ? ' · ' + keys.length + ' keys minted' : '') + '</small>' +
         (keys.length > 1
           ? '<div class="minted-list">' + keys.map((k) => '<code data-copy="' + esc(k) + '">' + esc(k) + '</code>').join('') + '</div>'
@@ -666,7 +686,8 @@ async function mintKey() {
     $('#mkAgain').addEventListener('click', openCreate);
     $$('[data-copy]', $('#mkOvl')).forEach((el) =>
       el.addEventListener('click', () => copyText(el.dataset.copy)));
-    toast('ok', 'Key' + (keys.length > 1 ? 's' : '') + ' created', keys[0] + (valid ? ' — lifetime' : ' — ' + days + 'd'));
+    toast('ok', 'Key' + (keys.length > 1 ? 's' : '') + ' created',
+      keys[0] + (isLifetime ? ' — lifetime' : ' — ' + daysOut + 'd'));
     await Promise.all([loadKeys(true), loadStats(), loadFeed()]);
   } catch (e) {
     m.className = 'msg err'; m.textContent = e.message;
@@ -867,7 +888,6 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ─── Boot ────────────────────────────────────────────────────────── */
-bindCreateForm();
 afterAuth();
 if (token()) refreshAll();
 setInterval(() => { if (token() && document.visibilityState === 'visible') refreshAll(); }, 15000);

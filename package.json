@@ -7,7 +7,9 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "generate": "node generate.js",
-    "test": "node test/smoke.test.js"
+    "test": "node test/smoke.test.js && node test/ui.test.js",
+    "test:api": "node test/smoke.test.js",
+    "test:ui": "node test/ui.test.js"
   },
   "keywords": [
     "license",
